@@ -1,78 +1,117 @@
-#include <iostream>
+
+#ifndef MATRIX_H
+#define MATRIX_H
+
 #include <vector>
 
-// Функция для генерации исключения при неправильном размере матрицы
-void checkMatrixSize(const std::vector<std::vector<int>>& matrix1, const std::vector<std::vector<int>>& matrix2) {
-    if (matrix1.size() != matrix2.size() || matrix1[0].size() != matrix2[0].size()) {
-        throw "Матрицы должны быть одинакового размера";
-    }
-}
+class Matrix {
+private:
+    std::vector<std::vector<double>> data;
+public:
+    Matrix(const std::vector<std::vector<double>>& data);
+    bool EqMatrix(const Matrix& other) const;
+    void SumMatrix(const Matrix& other);
+    void SubMatrix(const Matrix& other);
+    void MulNumber(double number);
+    void MulMatrix(const Matrix& other);
+    double Determinant() const;
+    Matrix Transpose() const;
+    Matrix CalcComplements() const;
+    Matrix InverseMatrix() const;
+};
 
-// Функция для сложения матриц
-std::vector<std::vector<int>> addMatrix(const std::vector<std::vector<int>>& matrix1, const std::vector<std::vector<int>>& matrix2) {
-    checkMatrixSize(matrix1, matrix2); // Проверка размера матриц
-    std::vector<std::vector<int>> result(matrix1.size(), std::vector<int>(matrix1[0].size()));
+#endif
+```
 
-    for (int i = 0; i < matrix1.size(); i++) {
-        for (int j = 0; j < matrix1[0].size(); j++) {
-            result[i][j] = matrix1[i][j] + matrix2[i][j];
+***Файл matrix.cpp***
+```c++
+#include "matrix.h"
+
+Matrix::Matrix(const std::vector<std::vector<double>>& data) : data(data) {}
+
+bool Matrix::EqMatrix(const Matrix& other) const {
+    if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
+        return false;
+
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data[i].size(); j++) {
+            if (data[i][j] != other.data[i][j])
+                return false;
         }
     }
-    return result;
+
+    return true;
 }
 
-// Функция для вычитания матриц
-std::vector<std::vector<int>> subtractMatrix(const std::vector<std::vector<int>>& matrix1, const std::vector<std::vector<int>>& matrix2) {
-    checkMatrixSize(matrix1, matrix2); // Проверка размера матриц
-    std::vector<std::vector<int>> result(matrix1.size(), std::vector<int>(matrix1[0].size()));
+void Matrix::SumMatrix(const Matrix& other) {
+    if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
+        throw std::runtime_error("Matrices have different sizes!");
 
-    for (int i = 0; i < matrix1.size(); i++) {
-        for (int j = 0; j < matrix1[0].size(); j++) {
-            result[i][j] = matrix1[i][j] - matrix2[i][j];
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data[i].size(); j++) {
+            data[i][j] += other.data[i][j];
         }
     }
-    return result;
 }
 
-// Функция для умножения матрицы на скаляр
-std::vector<std::vector<int>> multiplyMatrixByScalar(const std::vector<std::vector<int>>& matrix, const int scalar) {
-    std::vector<std::vector<int>> result(matrix.size(), std::vector<int>(matrix[0].size()));
+void Matrix::SubMatrix(const Matrix& other) {
+    if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
+        throw std::runtime_error("Matrices have different sizes!");
 
-    for (int i = 0; i < matrix.size(); i++) {
-        for (int j = 0; j < matrix[0].size(); j++) {
-            result[i][j] = matrix[i][j] * scalar;
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data[i].size(); j++) {
+            data[i][j] -= other.data[i][j];
         }
     }
-    return result;
 }
 
-// Функция для перемножения матриц
-std::vector<std::vector<int>> multiplyMatrix(const std::vector<std::vector<int>>& matrix1, const std::vector<std::vector<int>>& matrix2) {
-    if (matrix1[0].size() != matrix2.size()) {
-        throw "Количество столбцов первой матрицы должно быть равно количеству строк второй матрицы";
+void Matrix::MulNumber(double number) {
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < data[i].size(); j++) {
+            data[i][j] *= number;
+        }
     }
+}
 
-    std::vector<std::vector<int>> result(matrix1.size(), std::vector<int>(matrix2[0].size()));
+void Matrix::MulMatrix(const Matrix& other) {
+    if (data[0].size() != other.data.size())
+        throw std::runtime_error("Incompatible matrix sizes for multiplication!");
 
-    for (int i = 0; i < matrix1.size(); i++) {
-        for (int j = 0; j < matrix2[0].size(); j++) {
-            result[i][j] = 0;
-            for (int k = 0; k < matrix1[0].size(); k++) {
-                result[i][j] += matrix1[i][k] * matrix2[k][j];
+    std::vector<std::vector<double>> result(data.size(), std::vector<double>(other.data[0].size(), 0));
+
+    for (int i = 0; i < data.size(); i++) {
+        for (int j = 0; j < other.data[0].size(); j++) {
+            for (int k = 0; k < data[0].size(); k++) {
+                result[i][j] += data[i][k] * other.data[k][j];
             }
         }
     }
-    return result;
+
+    data = result;
 }
 
-// Функция для транспонирования матрицы
-std::vector<std::vector<int>> transposeMatrix(const std::vector<std::vector<int>>& matrix) {
-    std::vector<std::vector<int>> result(matrix[0].size(), std::vector<int>(matrix.size()));
+double Matrix::Determinant() const {
+    if (data.size() != data[0].size())
+        throw std::runtime_error("Matrix is not square!");
 
-    for (int i = 0; i < matrix.size(); i++) {
-        for (int j = 0; j < matrix[0].size(); j++) {
-            result[j][i] = matrix[i][j];
+    int n = data.size();
+
+    if (n == 1)
+        return data[0][0];
+
+    double determinant = 0;
+
+    for (int i = 0; i < n; i++) {
+        std::vector<std::vector<double>> submatrix(n - 1, std::vector<double>(n - 1));
+
+        for (int j = 1; j < n; j++) {
+            int k = 0;
+            for (int l = 0; l < n; l++) {
+                if (l == i)
+                    continue;
+                submatrix[j - 1][k] = data[j][l];
+                k++;
+            }
         }
-    }
-    return result;
-}
+
+        determinant += data[0][i] * (
