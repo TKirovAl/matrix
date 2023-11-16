@@ -88,4 +88,4 @@ double Matrix::Determinant() const {
             }
         }
 
-        determinant += data[0][i] * (
+      //  determinant += data[0][i] * (
