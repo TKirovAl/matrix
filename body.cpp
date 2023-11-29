@@ -64,28 +64,163 @@ void Matrix::MulMatrix(const Matrix& other) {
     data = result;
 }
 
-double Matrix::Determinant() const {
-    if (data.size() != data[0].size())
-        throw std::runtime_error("Matrix is not square!");
+   double Matrix::Determinant() const {
+        if (data.size() != data[0].size()) {
+            throw std::invalid_argument("Matrix is not square!");
+        }
 
-    int n = data.size();
+        int n = data.size();
+        std::vector<std::vector<double>> tempMatrix = data;
+        double det = 1;
 
-    if (n == 1)
-        return data[0][0];
+        for (int i = 0; i < n; i++) {
+            if (tempMatrix[i][i] == 0) {
+                bool swapSuccess = false;
+                for (int j = i + 1; j < n; j++) {
+                    if (tempMatrix[j][i] != 0) {
+                        std::swap(tempMatrix[i], tempMatrix[j]);
+                        det *= -1;  // меняем знак определителя при перестановке строк
+                        swapSuccess = true;
+                        break;
+                    }
+                }
 
-    double determinant = 0;
+                if (!swapSuccess) {
+                    return 0;  // если все элементы в столбце равны нулю, определитель равен 0
+                }
+            }
 
-    for (int i = 0; i < n; i++) {
-        std::vector<std::vector<double>> submatrix(n - 1, std::vector<double>(n - 1));
+            for (int j = i + 1; j < n; j++) {
+                double coef = tempMatrix[j][i] / tempMatrix[i][i];
+                for (int k = i; k < n; k++) {
+                    tempMatrix[j][k] -= tempMatrix[i][k] * coef;
+                }
+            }
+        }
+        
+        for (int i = 0; i < n; i++) {
+            det *= tempMatrix[i][i];
+        }
 
-        for (int j = 1; j < n; j++) {
-            int k = 0;
-            for (int l = 0; l < n; l++) {
-                if (l == i)
-                    continue;
-                submatrix[j - 1][k] = data[j][l];
-                k++;
+        return det;
+    }
+};
+
+   Matrix::Transpose() const {
+        int rows = data.size();
+        int cols = data[0].size();
+
+        std::vector<std::vector<double>> transposed(cols, std::vector<double>(rows, 0));
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                transposed[j][i] = data[i][j];
             }
         }
 
-      //  determinant += data[0][i] * (
+        return Matrix(transposed);
+    }
+
+    void Print() const {
+        for (const auto& row : data) {
+            for (const auto& elem : row) {
+                std::cout << elem << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+};
+
+  Matrix::GetMinor(int excludedRow, int excludedCol) const {
+        std::vector<std::vector<double>> minorData;
+        for (int i = 0; i < data.size(); i++) {
+            if (i != excludedRow) {
+                std::vector<double> row;
+                for (int j = 0; j < data[i].size(); j++) {
+                    if (j != excludedCol) {
+                        row.push_back(data[i][j]);
+                    }
+                }
+                minorData.push_back(row);
+            }
+        }
+        return Matrix(minorData);
+    }
+
+    Matrix::CalcComplements() const {
+        std::vector<std::vector<double>> complementData(data.size(), std::vector<double>(data[0].size()));
+
+        for (int i = 0; i < data.size(); i++) {
+            for (int j = 0; j < data[i].size(); j++) {
+                Matrix minor = GetMinor(i, j);
+                double minorDeterminant = minor.Determinant();
+                complementData[i][j] = std::pow(-1, i + j) * minorDeterminant; // (-1)^(i+j) * minorDeterminant
+            }
+        }
+
+        return Matrix(complementData);
+    }
+
+    void Print() const {
+        for (const auto& row : data) {
+            for (const auto& elem : row) {
+                std::cout << elem << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+};
+
+    Matrix::InverseMatrix() const {
+        double det = Determinant();
+        if (det == 0) {
+            throw std::runtime_error("The matrix is singular and does not have an inverse.");
+        }
+
+        Matrix::complements = CalcComplements();
+        Matrix::transposed = complements.Transpose();
+
+        for (int i = 0; i < transposed.data.size(); i++) {
+            for (int j = 0; j < transposed.data[i].size(); j++) {
+                transposed.data[i][j] /= det;
+            }
+        }
+
+        return transposed;
+    }
+
+    void Print() const {
+        for (const auto& row : data) {
+            for (const auto& elem : row) {
+                std::cout << elem << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+};
+
+
+
+int main() {
+    
+    try {
+        std::vector<std::vector<double>> matData = {{1, 2}, {3, 4}};
+        Matrix::mat(matData);
+        
+        double det = mat.Determinant();
+        Matrix::transposed = mat.Transpose();
+        Matrix::complements = mat.CalcComplements();
+        Matrix::inverse = mat.InverseMatrix();
+        Matrix::subMatrix = mat.SubMatrix();
+        Matrix::sumMatrix = mat.SumMatrix();
+        Matrix::calcComplements = mat.CalcComplements();
+        Matrix::getMinor = mat.GetMinor();
+        Matrix::mulMatrix = mat.MulMatrix();
+        
+    }
+    catch(const std::exception& e) {
+        std::cout << "Ошибка: " << e.what() << std::endl;
+    }
+    
+    return 0;
+}
