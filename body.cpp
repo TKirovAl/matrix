@@ -19,7 +19,7 @@ bool Matrix::EqMatrix(const Matrix& other) const {
 
 void Matrix::SumMatrix(const Matrix& other) {
     if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
-        throw std::runtime_error("Matrices have different sizes!");
+        throw std::invalid_argument("Matrices have different sizes!");
 
     for (int i = 0; i < data.size(); i++) {
         for (int j = 0; j < data[i].size(); j++) {
