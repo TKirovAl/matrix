@@ -5,18 +5,18 @@
 
 class Matrix {
 private:
-    std::vector<std::vector<double>> data;
+    int data, cols_;
+    double** matrix_;
+    double** AllocateMatrix(int rows, int cols);
+    void Fill();
+    
 public:
-    Matrix(const std::vector<std::vector<double>>& data);
-    bool EqMatrix(const Matrix& other) const;
-    void SumMatrix(const Matrix& other);
-    void SubMatrix(const Matrix& other);
-    void MulNumber(double number);
-    void MulMatrix(const Matrix& other);
-    double Determinant() const;
-    Matrix Transpose() const;
-    Matrix CalcComplements() const;
-    Matrix InverseMatrix() const;
+    Matrix() noexcept;
+    Matrix(int rows, int cols);
+    int getRows();
+    int getCols();
+    void OutputMatrix() noexcept;
+    void Fill(double** matrix_);
 };
 
 #endif
