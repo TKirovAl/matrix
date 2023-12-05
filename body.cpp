@@ -15,7 +15,7 @@ bool Matrix::EqMatrix(const Matrix& other) const {
     return true;
 }
 
-void Matrix::Fill {
+void Matrix::Fill() {
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j = cols_; j++) {
             matrix_[i][j] = 0;
