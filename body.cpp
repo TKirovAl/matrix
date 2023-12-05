@@ -1,7 +1,9 @@
 #include <iostream>
 #include "matrix.h"
 
-Matrix::Matrix(const std::vector<std::vector<double>>& data) : data(data) {}
+Matrix::Matrix(){
+    
+}
 
 bool Matrix::EqMatrix(const Matrix& other) const {
     if (rows_ != other.rows_ || cols_ != other.cols_)
@@ -24,46 +26,41 @@ void Matrix::Fill() {
 }
 
 void Matrix::OutputMatrix() const {
-    for (const auto& row : data) {
-        for (const auto& elem : row) {
-            std::cout << elem << " ";
-        }
-        std::cout << std::endl;
-    }
+    
 }
 
 void Matrix::SumMatrix(const Matrix& other) {
-    if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
+    if (rows_ != other.rows_ || cols_ != other.cols_)
         throw std::invalid_argument("Matrices have different sizes!");
 
-    for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < data[i].size(); j++) {
-            data[i][j] += other.data[i][j];
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            matrix_[i][j] += other.matrix_[i][j];
         }
     }
 }
 
 void Matrix::SubMatrix(const Matrix& other) {
-    if (data.size() != other.data.size() || data[0].size() != other.data[0].size())
+    if (rows_ != other.rows_ || cols_ != other.cols_)
         throw std::runtime_error("Matrices have different sizes!");
 
-    for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < data[i].size(); j++) {
-            data[i][j] -= other.data[i][j];
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < rows_; j++) {
+            matrix_[i][j] -= other.matrix_[i][j];
         }
     }
 }
 
 void Matrix::MulNumber(double number) {
-    for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < data[i].size(); j++) {
-            data[i][j] *= number;
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            matrix_[i][j] *= number;
         }
     }
 }
 
 double** Matrix::AllocateMatrix(int rows, int cols) {
-    double** matrix = new double[rows];
+    double** matrix = new double*[rows];
     for (int i = 0; i < rows; i++) {
         matrix[i] = new double[cols];
     }
@@ -71,29 +68,29 @@ double** Matrix::AllocateMatrix(int rows, int cols) {
 }
 
 void Matrix::MulMatrix(const Matrix& other) {
-    if (data[0].size() != other.data.size())
+    if (cols_ != other.rows_)
         throw std::runtime_error("Incompatible matrix sizes for multiplication!");
 
-    std::vector<std::vector<double>> result(data.size(), std::vector<double>(other.data[0].size(), 0));
+    std::vector<std::vector<double>> result(rows_, std::vector<double>(other.cols_, 0));
 
-    for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < other.data[0].size(); j++) {
-            for (int k = 0; k < data[0].size(); k++) {
-                result[i][j] += data[i][k] * other.data[k][j];
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < other.cols_; j++) {
+            for (int k = 0; k < cols_; k++) {
+                result[i][j] += matrix_[i][k] * other.matrix_[k][j];
             }
         }
     }
 
-    data = result;
+    matrix_ = result;
 }
 
 double Matrix::Determinant() const {
-    if (data.size() != data[0].size()) {
+    if (rows_ != cols_) {
         throw std::invalid_argument("Matrix is not square!");
     }
 
-    int n = data.size();
-    std::vector<std::vector<double>> tempMatrix = data;
+    int n = rows_;
+    std::vector<std::vector<double>> tempMatrix = matrix_;
     double det = 1;
 
     for (int i = 0; i < n; i++) {
@@ -126,8 +123,8 @@ double Matrix::Determinant() const {
 }
 
 Matrix::Transpose() const {
-    int rows = data.size();
-    int cols = data[0].size();
+    int rows = rows_;
+    int cols = cols_);
 
     std::vector<std::vector<double>> transposed(cols, std::vector<double>(rows, 0));
 
@@ -148,9 +145,9 @@ Matrix::InverseMatrix() const {
 
     Matrix::complements = CalcComplements();
     Matrix::transposed = complements.Transpose();
-    for (int i = 0; i < transposed.data.size(); i++) {
-        for (int j = 0; j < transposed.data[i].size(); j++) {
-            transposed.data[i][j] /= det;
+    for (int i = 0; i < transposed.rows_; i++) {
+        for (int j = 0; j < transposed.cols_; j++) {
+            transposed.matrix_[i][j] /= det;
         }
     }
 
