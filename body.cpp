@@ -157,15 +157,6 @@ Matrix::InverseMatrix() const {
     return transposed;
 }
 
-void Print() const {
-    for (const auto& row : data) {
-        for (const auto& elem : row) {
-            std::cout << elem << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
 int main() {
     
     try {
