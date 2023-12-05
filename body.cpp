@@ -23,11 +23,13 @@ void Matrix::Fill {
     }
 }
 
-void Matrix::OutputMatrix() noexcept {
-    for (int i = 0; i < data.size(); i++) {
-        matrix[i] = new double[cols];
+void Matrix::OutputMatrix() const {
+    for (const auto& row : data) {
+        for (const auto& elem : row) {
+            std::cout << elem << " ";
+        }
+        std::cout << std::endl;
     }
-    return matrix;
 }
 
 void Matrix::SumMatrix(const Matrix& other) {
