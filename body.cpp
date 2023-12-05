@@ -67,6 +67,7 @@ double** Matrix::AllocateMatrix(int rows, int cols) {
     }
     return matrix;
 }
+
 void Matrix::MulMatrix(const Matrix& other) {
     if (data[0].size() != other.data.size())
         throw std::runtime_error("Incompatible matrix sizes for multiplication!");
