@@ -1,5 +1,6 @@
 #include <iostream>
 #include "matrix.h"
+#include <vector>
 
 Matrix::Matrix(){
     
@@ -73,7 +74,7 @@ void Matrix::MulMatrix(const Matrix& other) {
 
     std::vector<std::vector<double>> result(rows_, std::vector<double>(other.cols_, 0));
 
-    for (int i = 0; i < rows_; i++) {
+    for (int i = 0; i < other.rows_; i++) {
         for (int j = 0; j < other.cols_; j++) {
             for (int k = 0; k < cols_; k++) {
                 result[i][j] += matrix_[i][k] * other.matrix_[k][j];
@@ -122,51 +123,81 @@ double Matrix::Determinant() const {
     return det;
 }
 
-Matrix::Transpose() const {
-    int rows = rows_;
-    int cols = cols_);
+Matrix Matrix::Transpose() const {
+    Matrix transposed(cols_, rows_);
+    for (int i = 0; i < rows_; ++i) {
+        for (int j = 0; j < cols_; ++j) {
+            transposed.matrix_[j][i] = matrix_[i][j];
+        }
+    }
+    return transposed;
+}
 
-    std::vector<std::vector<double>> transposed(cols, std::vector<double>(rows, 0));
+double Matrix::CalcComplements(double** mat, int order, int row, int col) const{
+    int subMatRow = 0, subMatCol = 0;
+    double** subMat = AllocateMatrix(order - 1, order - 1);
 
-    for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-            transposed[j][i] = data[i][j];
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++) {
+            if (i != row && j != col) {
+                subMat[subMatRow][subMatCol++] = mat[i][j];
+
+                if (subMatCol == order - 1) {
+                    subMatCol = 0;
+                    subMatRow++;
+                }
+            }
         }
     }
 
-    return Matrix(transposed);
+    double complement = (row + col) % 2 == 0 ? Determinant(subMat, order - 1) : -Determinant(subMat, order - 1);
+
+    DeallocateMatrix(subMat, order - 1);
+    return complement;
 }
 
-Matrix::InverseMatrix() const {
+Matrix Matrix::InverseMatrix() const {
+    // Находим определитель
     double det = Determinant();
     if (det == 0) {
         throw std::runtime_error("The matrix is singular and does not have an inverse.");
     }
 
-    Matrix::complements = CalcComplements();
-    Matrix::transposed = complements.Transpose();
-    for (int i = 0; i < transposed.rows_; i++) {
-        for (int j = 0; j < transposed.cols_; j++) {
+    // Выделяем память для матрицы-комплемента
+    double** complementMatrix = AllocateMatrix(rows_, cols_);
+
+    // Вычисляем комплементы матрицы
+    complementMatrix = CalcComplements();
+
+    // Создаем новый объект Matrix для хранения комплементов
+    Matrix complements(rows_, cols_);
+    complements.Fill(complementMatrix);
+
+    // Транспонируем матрицу комплементов
+    Matrix transposed = complements.Transpose();
+
+    // Делим каждый элемент на определитель
+    for (int i = 0; i < transposed.getRows(); i++) {
+        for (int j = 0; j < transposed.getCols(); j++) {
             transposed.matrix_[i][j] /= det;
         }
     }
 
     return transposed;
-}
 
 int main() {
     
     try {
         std::vector<std::vector<double>> matData = {{1, 2}, {3, 4}};
-        Matrix::Matrix(matData);
+        Matrix matrix_(matData);
         
-        double det = mat.Determinant();
-        Matrix transposed = mat.Transpose();
-        Matrix complements = mat.CalcComplements();
-        Matrix inverse = mat.InverseMatrix();
-        Matrix subMatrix = mat.SubMatrix();
-        Matrix sumMatrix = mat.SumMatrix();
-        Matrix mulMatrix = mat.MulMatrix();
+        double det = matrix_.Determinant();
+        Matrix transposed = matrix_.Transpose();
+        Matrix complements = matrix_.CalcComplements();
+        Matrix inverse = matrix_.InverseMatrix();
+        Matrix subMatrix = matrix_.SubMatrix();
+        Matrix sumMatrix = matrix_.SumMatrix();
+        Matrix mulMatrix = matrix_.MulMatrix();
         
     }
     catch(const std::exception& e) {
