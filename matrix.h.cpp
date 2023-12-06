@@ -25,6 +25,8 @@ public:
     Matrix Transpose() const;
     void MulNumber(double number);
     double Determinant() const;
+    Matrix InverseMatrix() const;
+    double CalcComplements(double** mat, int order, int row, int col) const;
 };
 
 #endif
